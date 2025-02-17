@@ -4,20 +4,59 @@ const colorPreview = document.getElementById("colorPreview");
 const colorValue = document.getElementById("colorValue");
 const imageUpload = document.getElementById("imageUpload");
 
-// 이미지 업로드 처리
+// 이미지 업로드 처리 수정
 imageUpload.addEventListener("change", function (e) {
   const file = e.target.files[0];
   const reader = new FileReader();
 
   reader.onload = function (event) {
     const img = new Image();
+
     img.onload = function () {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img, 0, 0);
+      // 이미지 방향 보정을 위한 임시 캔버스 생성
+      const tempCanvas = document.createElement("canvas");
+      const tempCtx = tempCanvas.getContext("2d");
+
+      // 적절한 크기로 조정 (최대 너비/높이 설정)
+      const maxWidth = 1200;
+      const maxHeight = 1200;
+      let width = img.width;
+      let height = img.height;
+
+      // 이미지 크기 조정
+      if (width > height) {
+        if (width > maxWidth) {
+          height *= maxWidth / width;
+          width = maxWidth;
+        }
+      } else {
+        if (height > maxHeight) {
+          width *= maxHeight / height;
+          height = maxHeight;
+        }
+      }
+
+      // 캔버스 크기 설정
+      tempCanvas.width = width;
+      tempCanvas.height = height;
+
+      // 이미지 그리기
+      tempCtx.drawImage(img, 0, 0, width, height);
+
+      // 실제 캔버스에 이미지 적용
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(tempCanvas, 0, 0);
+
+      // 임시 캔버스 제거
+      tempCanvas.remove();
     };
+
+    // CORS 문제 방지
+    img.crossOrigin = "Anonymous";
     img.src = event.target.result;
   };
+
   reader.readAsDataURL(file);
 });
 
@@ -242,37 +281,31 @@ canvas.addEventListener("click", function (e) {
   return false; // 추가 이벤트 방지
 });
 
-// 터치 이벤트 수정
+// 모바일 터치 이벤트 수정
 canvas.addEventListener(
   "touchstart",
   function (e) {
-    e.preventDefault(); // 기본 터치 동작 방지
-    e.stopPropagation(); // 이벤트 전파 중지
+    e.preventDefault();
+    e.stopPropagation();
 
     const rect = canvas.getBoundingClientRect();
     const touch = e.touches[0];
 
-    // 스크롤 위치 고려
-    const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
-    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+    // 터치 좌표 계산 개선
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
 
-    // 캔버스의 실제 크기와 표시되는 크기의 비율 계산
+    // 캔버스 크기에 맞게 좌표 조정
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
 
-    // 터치 좌표를 캔버스 내부 좌표로 변환 (스크롤 위치 반영)
-    const x = (touch.clientX + scrollX - rect.left) * scaleX;
-    const y = (touch.clientY + scrollY - rect.top) * scaleY;
-
-    // 범위를 벗어나는 터치 처리
-    if (x < 0 || x >= canvas.width || y < 0 || y >= canvas.height) {
-      return;
-    }
+    const scaledX = x * scaleX;
+    const scaledY = y * scaleY;
 
     try {
       const imageData = ctx.getImageData(
-        Math.floor(x),
-        Math.floor(y),
+        Math.floor(scaledX),
+        Math.floor(scaledY),
         1,
         1
       ).data;
@@ -287,11 +320,9 @@ canvas.addEventListener(
     } catch (error) {
       console.error("색상 추출 중 오류 발생:", error);
     }
-
-    return false; // 추가 이벤트 방지
   },
   { passive: false }
-); // passive 옵션을 false로 설정
+);
 
 // 추가 이벤트 리스너로 다른 터치 이벤트 방지
 canvas.addEventListener(
