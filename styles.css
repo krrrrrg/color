@@ -130,6 +130,15 @@ canvas {
 #colorValue {
   font-size: 1.2rem;
   font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.color-type {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: normal;
 }
 
 input[type="file"] {

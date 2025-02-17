@@ -361,16 +361,13 @@ canvas.addEventListener("click", function (e) {
   try {
     const imageData = ctx.getImageData(Math.floor(x), Math.floor(y), 1, 1).data;
     const [r, g, b] = imageData;
-    const hex = `#${r.toString(16).padStart(2, "0")}${g
-      .toString(16)
-      .padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+    const colorInfo = getColorInfo(r, g, b);
 
-    colorPreview.style.backgroundColor = hex;
-    const colorName = getColorName(r, g, b);
-    colorValue.textContent = `${colorName} (${hex})`;
+    colorPreview.style.backgroundColor = colorInfo.hex;
+    colorValue.textContent = `${colorInfo.name} (${colorInfo.type}) ${colorInfo.hex}`;
 
     // 마커 표시
-    showColorMarker(clickX, clickY, hex);
+    showColorMarker(clickX, clickY, colorInfo.hex);
   } catch (error) {
     console.error("색상 추출 중 오류 발생:", error);
   }
@@ -401,30 +398,32 @@ canvas.addEventListener(
     const canvasY = Math.round(touchY * scaleY);
 
     try {
-      // 색상 데이터 추출
       const imageData = ctx.getImageData(canvasX, canvasY, 1, 1).data;
       const [r, g, b] = imageData;
-      const hex = `#${r.toString(16).padStart(2, "0")}${g
-        .toString(16)
-        .padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+      const colorInfo = getColorInfo(r, g, b);
 
-      colorPreview.style.backgroundColor = hex;
-      const colorName = getColorName(r, g, b);
-      colorValue.textContent = `${colorName} (${hex})`;
+      colorPreview.style.backgroundColor = colorInfo.hex;
+      colorValue.textContent = `${colorInfo.name} (${colorInfo.type}) ${colorInfo.hex}`;
 
-      // 마커 표시 (터치한 실제 위치에)
-      showColorMarker(touchX, touchY, hex);
+      // 마커 표시
+      showColorMarker(touchX, touchY, colorInfo.hex);
 
       // 디버깅용 로그
       console.log({
         touch: { x: touchX, y: touchY },
         canvas: { x: canvasX, y: canvasY },
         scale: { x: scaleX, y: scaleY },
-        color: { r, g, b, hex },
+        color: {
+          r,
+          g,
+          b,
+          hex: colorInfo.hex,
+          name: colorInfo.name,
+          type: colorInfo.type,
+        },
       });
     } catch (error) {
       console.error("색상 추출 중 오류 발생:", error);
-      console.log("오류 발생 좌표:", { x: canvasX, y: canvasY });
     }
   },
   { passive: false }
@@ -448,3 +447,141 @@ canvas.addEventListener(
   },
   { passive: false }
 );
+
+function getColorInfo(r, g, b) {
+  const colorSeries = {
+    무채색계열: [
+      "흰색",
+      "검정",
+      "회색",
+      "진회색",
+      "연회색",
+      "아이보리",
+      "은색",
+    ],
+    빨간계열: [
+      "빨강",
+      "진빨강",
+      "밝은빨강",
+      "선홍색",
+      "와인레드",
+      "버건디",
+      "루비",
+      "적갈색",
+      "토마토",
+    ],
+    분홍계열: [
+      "분홍",
+      "핫핑크",
+      "딥핑크",
+      "라즈베리",
+      "연분홍",
+      "살구색",
+      "코랄핑크",
+      "피치",
+      "로즈",
+    ],
+    주황계열: [
+      "주황",
+      "진주황",
+      "연주황",
+      "귤색",
+      "코랄",
+      "캐럿",
+      "황토색",
+      "테라코타",
+    ],
+    노란계열: [
+      "노랑",
+      "연노랑",
+      "골드",
+      "머스타드",
+      "레몬",
+      "크림",
+      "바나나",
+      "카나리아",
+      "황갈색",
+    ],
+    초록계열: [
+      "초록",
+      "라임",
+      "연두",
+      "올리브",
+      "진초록",
+      "민트",
+      "에메랄드",
+      "포레스트그린",
+      "세이지",
+      "녹차색",
+      "잔디색",
+      "애플그린",
+    ],
+    청록계열: ["청록", "터콰이즈", "아쿠아", "틸", "비취색", "제이드"],
+    파란계열: [
+      "파랑",
+      "하늘",
+      "네이비",
+      "로얄블루",
+      "코발트",
+      "스틸블루",
+      "데님",
+      "사파이어",
+      "베이비블루",
+      "파우더블루",
+      "청색",
+    ],
+    보라계열: [
+      "보라",
+      "자주",
+      "라벤더",
+      "진보라",
+      "플럼",
+      "인디고",
+      "퍼플",
+      "아메시스트",
+      "모브",
+      "라일락",
+    ],
+    갈색계열: [
+      "갈색",
+      "진갈색",
+      "연갈색",
+      "카키",
+      "시에나",
+      "마호가니",
+      "캐러멜",
+      "초콜릿",
+      "커피",
+      "호두색",
+      "탄색",
+    ],
+    메탈릭계열: ["골드메탈릭", "실버", "브론즈", "플래티넘", "구리색"],
+    파스텔계열: [
+      "파스텔핑크",
+      "파스텔블루",
+      "파스텔퍼플",
+      "파스텔옐로우",
+      "파스텔그린",
+      "파스텔오렌지",
+    ],
+  };
+
+  const colorName = getColorName(r, g, b);
+  let colorType = "";
+
+  // 색상 계열 찾기
+  for (const [series, colors] of Object.entries(colorSeries)) {
+    if (colors.includes(colorName)) {
+      colorType = series;
+      break;
+    }
+  }
+
+  return {
+    name: colorName,
+    type: colorType,
+    hex: `#${r.toString(16).padStart(2, "0")}${g
+      .toString(16)
+      .padStart(2, "0")}${b.toString(16).padStart(2, "0")}`,
+  };
+}
