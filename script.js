@@ -17,37 +17,30 @@ imageUpload.addEventListener("change", function (e) {
       const tempCanvas = document.createElement("canvas");
       const tempCtx = tempCanvas.getContext("2d");
 
-      // 적절한 크기로 조정 (최대 너비/높이 설정)
-      const maxWidth = 1200;
-      const maxHeight = 1200;
-      let width = img.width;
-      let height = img.height;
+      // 컨테이너 크기 가져오기
+      const container = document.querySelector(".canvas-container");
+      const containerWidth = container.clientWidth;
 
-      // 이미지 크기 조정 (비율 유지)
-      const ratio = Math.min(maxWidth / width, maxHeight / height);
-      if (ratio < 1) {
-        width *= ratio;
-        height *= ratio;
-      }
+      // 이미지 크기 조정 (컨테이너 너비에 맞춤)
+      let width = containerWidth;
+      let height = (img.height * containerWidth) / img.width;
 
       // 캔버스 크기 설정
+      canvas.width = width;
+      canvas.height = height;
       tempCanvas.width = width;
       tempCanvas.height = height;
 
-      // 이미지를 캔버스 중앙에 배치
-      tempCtx.drawImage(img, 0, 0, img.width, img.height, 0, 0, width, height);
-
-      // 실제 캔버스에 이미지 적용
-      canvas.width = width;
-      canvas.height = height;
+      // 이미지를 캔버스에 그리기
+      tempCtx.drawImage(img, 0, 0, width, height);
       ctx.drawImage(tempCanvas, 0, 0);
-
-      // CSS에서 캔버스 크기 조정
-      canvas.style.width = "100%";
-      canvas.style.height = "auto";
 
       // 임시 캔버스 제거
       tempCanvas.remove();
+
+      // 캔버스 스타일 설정
+      canvas.style.width = "100%";
+      canvas.style.height = "auto";
     };
 
     // CORS 문제 방지
@@ -316,37 +309,21 @@ canvas.addEventListener(
     const rect = canvas.getBoundingClientRect();
     const touch = e.touches[0];
 
-    // 화면 크기와 실제 캔버스 크기의 비율 계산
-    const displayWidth = rect.width;
-    const displayHeight = rect.height;
-    const canvasWidth = canvas.width;
-    const canvasHeight = canvas.height;
-
     // 터치 좌표를 캔버스 상대 좌표로 변환
     const touchX = touch.clientX - rect.left;
     const touchY = touch.clientY - rect.top;
 
-    // 터치 좌표를 비율에 맞게 변환
-    const canvasX = (touchX / displayWidth) * canvasWidth;
-    const canvasY = (touchY / displayHeight) * canvasHeight;
+    // 캔버스의 실제 크기와 표시되는 크기의 비율 계산
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
 
-    // 좌표가 캔버스 범위 내에 있는지 확인
-    if (
-      canvasX < 0 ||
-      canvasX >= canvasWidth ||
-      canvasY < 0 ||
-      canvasY >= canvasHeight
-    ) {
-      return;
-    }
+    // 실제 캔버스 좌표 계산
+    const canvasX = Math.round(touchX * scaleX);
+    const canvasY = Math.round(touchY * scaleY);
 
     try {
-      // 정수로 반올림하여 픽셀 좌표 계산
-      const x = Math.round(canvasX);
-      const y = Math.round(canvasY);
-
       // 색상 데이터 추출
-      const imageData = ctx.getImageData(x, y, 1, 1).data;
+      const imageData = ctx.getImageData(canvasX, canvasY, 1, 1).data;
       const [r, g, b] = imageData;
       const hex = `#${r.toString(16).padStart(2, "0")}${g
         .toString(16)
@@ -356,15 +333,14 @@ canvas.addEventListener(
       const colorName = getColorName(r, g, b);
       colorValue.textContent = `${colorName} (${hex})`;
 
-      // 마커 표시
+      // 마커 표시 (터치한 실제 위치에)
       showColorMarker(touchX, touchY, hex);
 
-      // 디버깅용 로그 (나중에 제거)
+      // 디버깅용 로그
       console.log({
-        display: { width: displayWidth, height: displayHeight },
-        canvas: { width: canvasWidth, height: canvasHeight },
         touch: { x: touchX, y: touchY },
-        calculated: { x, y },
+        canvas: { x: canvasX, y: canvasY },
+        scale: { x: scaleX, y: scaleY },
         color: { r, g, b, hex },
       });
     } catch (error) {
