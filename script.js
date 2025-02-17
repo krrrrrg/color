@@ -450,16 +450,8 @@ canvas.addEventListener(
 
 function getColorInfo(r, g, b) {
   const colorSeries = {
-    무채색계열: [
-      "흰색",
-      "검정",
-      "회색",
-      "진회색",
-      "연회색",
-      "아이보리",
-      "은색",
-    ],
-    빨간계열: [
+    빨강계열: [
+      // 빨간색 계열
       "빨강",
       "진빨강",
       "밝은빨강",
@@ -469,8 +461,7 @@ function getColorInfo(r, g, b) {
       "루비",
       "적갈색",
       "토마토",
-    ],
-    분홍계열: [
+      // 분홍색 계열
       "분홍",
       "핫핑크",
       "딥핑크",
@@ -480,8 +471,7 @@ function getColorInfo(r, g, b) {
       "코랄핑크",
       "피치",
       "로즈",
-    ],
-    주황계열: [
+      // 주황색 계열
       "주황",
       "진주황",
       "연주황",
@@ -491,7 +481,8 @@ function getColorInfo(r, g, b) {
       "황토색",
       "테라코타",
     ],
-    노란계열: [
+
+    노랑계열: [
       "노랑",
       "연노랑",
       "골드",
@@ -501,7 +492,9 @@ function getColorInfo(r, g, b) {
       "바나나",
       "카나리아",
       "황갈색",
+      "골드메탈릭",
     ],
+
     초록계열: [
       "초록",
       "라임",
@@ -515,9 +508,16 @@ function getColorInfo(r, g, b) {
       "녹차색",
       "잔디색",
       "애플그린",
+      // 청록 계열 포함
+      "청록",
+      "터콰이즈",
+      "아쿠아",
+      "틸",
+      "비취색",
+      "제이드",
     ],
-    청록계열: ["청록", "터콰이즈", "아쿠아", "틸", "비취색", "제이드"],
-    파란계열: [
+
+    파랑계열: [
       "파랑",
       "하늘",
       "네이비",
@@ -530,6 +530,7 @@ function getColorInfo(r, g, b) {
       "파우더블루",
       "청색",
     ],
+
     보라계열: [
       "보라",
       "자주",
@@ -542,6 +543,7 @@ function getColorInfo(r, g, b) {
       "모브",
       "라일락",
     ],
+
     갈색계열: [
       "갈색",
       "진갈색",
@@ -554,8 +556,22 @@ function getColorInfo(r, g, b) {
       "커피",
       "호두색",
       "탄색",
+      "브론즈",
+      "구리색",
     ],
-    메탈릭계열: ["골드메탈릭", "실버", "브론즈", "플래티넘", "구리색"],
+
+    무채색계열: [
+      "흰색",
+      "검정",
+      "회색",
+      "진회색",
+      "연회색",
+      "아이보리",
+      "은색",
+      "실버",
+      "플래티넘",
+    ],
+
     파스텔계열: [
       "파스텔핑크",
       "파스텔블루",
@@ -574,6 +590,21 @@ function getColorInfo(r, g, b) {
     if (colors.includes(colorName)) {
       colorType = series;
       break;
+    }
+  }
+
+  // 파스텔 색상의 경우 기본 색상 계열도 함께 표시
+  if (colorType === "파스텔계열") {
+    if (colorName.includes("핑크") || colorName.includes("레드")) {
+      colorType = "파스텔계열 (빨강계열)";
+    } else if (colorName.includes("옐로우")) {
+      colorType = "파스텔계열 (노랑계열)";
+    } else if (colorName.includes("그린")) {
+      colorType = "파스텔계열 (초록계열)";
+    } else if (colorName.includes("블루")) {
+      colorType = "파스텔계열 (파랑계열)";
+    } else if (colorName.includes("퍼플")) {
+      colorType = "파스텔계열 (보라계열)";
     }
   }
 
