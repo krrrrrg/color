@@ -23,41 +23,45 @@ imageUpload.addEventListener("change", function (e) {
 
 // 색상 추출 함수
 function getColorName(r, g, b) {
-  // 확장된 색상 데이터베이스
+  // 확장된 색상 데이터베이스 - 더 세분화된 색상값 추가
   const colors = {
     // 빨간계열
     빨강: [255, 0, 0],
     진빨강: [139, 0, 0],
     밝은빨강: [255, 69, 0],
-    산호색: [255, 127, 80],
+    토마토: [255, 99, 71],
 
     // 분홍계열
     분홍: [255, 192, 203],
     핫핑크: [255, 105, 180],
     딥핑크: [255, 20, 147],
     연분홍: [255, 182, 193],
+    살구색: [255, 218, 185],
 
     // 주황계열
     주황: [255, 165, 0],
     진주황: [255, 140, 0],
     연주황: [255, 218, 185],
+    귤색: [255, 128, 0],
 
     // 노란계열
     노랑: [255, 255, 0],
     연노랑: [255, 255, 224],
     골드: [255, 215, 0],
-    카키: [240, 230, 140],
+    레몬: [255, 250, 205],
 
     // 초록계열
     초록: [0, 128, 0],
-    라임: [0, 255, 0],
+    라임: [50, 205, 50],
     연두: [144, 238, 144],
     올리브: [128, 128, 0],
     진초록: [0, 100, 0],
+    민트: [189, 252, 201],
 
     // 청록계열
-    청록: [0, 255, 255],
+    청록: [0, 206, 209],
     터콰이즈: [64, 224, 208],
+    아쿠아: [0, 255, 255],
 
     // 파란계열
     파랑: [0, 0, 255],
@@ -76,6 +80,7 @@ function getColorName(r, g, b) {
     갈색: [165, 42, 42],
     진갈색: [139, 69, 19],
     연갈색: [210, 180, 140],
+    초콜릿: [139, 69, 19],
 
     // 무채색계열
     검정: [0, 0, 0],
@@ -96,6 +101,16 @@ function getColorName(r, g, b) {
   let closestColor = "";
   let minDistance = Infinity;
 
+  // 무채색 특별 처리 개선 (먼저 처리)
+  if (s < 0.15) {
+    if (v > 0.95) return "흰색";
+    if (v < 0.12) return "검정";
+    if (v < 0.3) return "진회색";
+    if (v < 0.7) return "회색";
+    if (v < 0.9) return "연회색";
+    return "흰색";
+  }
+
   for (let name in colors) {
     const [cr, cg, cb] = colors[name];
     const [ch, cs, cv] = rgbToHsv(cr, cg, cb);
@@ -105,11 +120,17 @@ function getColorName(r, g, b) {
     let satDistance = Math.abs(s - cs);
     let valDistance = Math.abs(v - cv);
 
-    // 가중치 적용
+    // 가중치 조정
     const distance =
-      hueDistance * 10 + // 색상(hue)에 높은 가중치
-      satDistance * 5 + // 채도(saturation)에 중간 가중치
-      valDistance * 3; // 명도(value)에 낮은 가중치
+      hueDistance * 15 + // 색상(hue) 가중치 증가
+      satDistance * 8 + // 채도(saturation) 가중치 증가
+      valDistance * 5; // 명도(value) 가중치 조정
+
+    // 색상 범위에 따른 추가 가중치
+    if (s < 0.2) {
+      // 채도가 낮은 경우
+      distance *= 1.5; // 무채색에 가까운 색상은 거리를 더 멀게
+    }
 
     if (distance < minDistance) {
       minDistance = distance;
@@ -117,15 +138,12 @@ function getColorName(r, g, b) {
     }
   }
 
-  // 무채색 특별 처리 개선
-  if (s < 0.12) {
-    // 채도가 매우 낮은 경우
-    if (v > 0.9) return "흰색";
-    if (v < 0.16) return "검정";
-    if (v < 0.4) return "진회색";
-    if (v < 0.7) return "회색";
-    if (v < 0.9) return "연회색";
+  // 특정 색상 범위에 대한 후처리
+  if (s < 0.2 && v > 0.9) {
     return "흰색";
+  }
+  if (s < 0.2 && v < 0.2) {
+    return "검정";
   }
 
   return closestColor;
