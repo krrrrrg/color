@@ -1,21 +1,89 @@
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  text-align: center;
+:root {
+  --primary-color: #4361ee;
+  --secondary-color: #3f37c9;
+  --text-color: #2b2d42;
+  --light-gray: #f8f9fa;
+  --border-radius: 12px;
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.upload-container {
-  margin: 20px 0;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Noto Sans KR", sans-serif;
+  background-color: #f5f7ff;
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.header h1 {
+  font-size: 2.5rem;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.main-content {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  box-shadow: var(--shadow);
+}
+
+.upload-section {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.upload-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.upload-button:hover {
+  background-color: var(--secondary-color);
+  transform: translateY(-2px);
+}
+
+.upload-icon {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
 }
 
 .canvas-container {
-  margin: 20px 0;
-  border: 1px solid #ccc;
-  max-width: 100%;
+  margin: 2rem 0;
+  border-radius: var(--border-radius);
   overflow: hidden;
-  -webkit-overflow-scrolling: touch;
-  touch-action: none;
+  background: var(--light-gray);
+  position: relative;
 }
 
 canvas {
@@ -23,35 +91,88 @@ canvas {
   height: auto;
   display: block;
   cursor: crosshair;
-  touch-action: none;
-  -webkit-tap-highlight-color: transparent;
+  border-radius: var(--border-radius);
+}
+
+.instruction {
+  text-align: center;
+  padding: 1rem;
+  color: #666;
+  font-size: 0.9rem;
 }
 
 .color-info {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 20px;
+  gap: 2rem;
+  padding: 1.5rem;
+  background: var(--light-gray);
+  border-radius: var(--border-radius);
+  margin-top: 2rem;
+}
+
+.color-preview-wrapper {
+  flex-shrink: 0;
 }
 
 #colorPreview {
-  width: 50px;
-  height: 50px;
-  border: 1px solid #ccc;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid white;
+  box-shadow: var(--shadow);
+}
+
+.color-details {
+  flex-grow: 1;
 }
 
 #colorValue {
-  font-size: 18px;
+  font-size: 1.2rem;
+  font-weight: 500;
 }
 
 input[type="file"] {
   display: none;
 }
 
-label[for="imageUpload"] {
-  background-color: #4caf50;
-  color: white;
-  padding: 10px 20px;
-  cursor: pointer;
-  border-radius: 5px;
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+  }
+
+  .color-info {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  #colorPreview {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+/* 애니메이션 효과 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.main-content {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.color-info {
+  animation: fadeIn 0.5s ease-out;
 }
