@@ -1,0 +1,49 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+}
+
+.upload-container {
+  margin: 20px 0;
+}
+
+.canvas-container {
+  margin: 20px 0;
+  border: 1px solid #ccc;
+}
+
+canvas {
+  max-width: 100%;
+  cursor: crosshair;
+}
+
+.color-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+#colorPreview {
+  width: 50px;
+  height: 50px;
+  border: 1px solid #ccc;
+}
+
+#colorValue {
+  font-size: 18px;
+}
+
+input[type="file"] {
+  display: none;
+}
+
+label[for="imageUpload"] {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+}

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>색상 스포이드 도구</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>색상 스포이드 도구</h1>
+      <div class="upload-container">
+        <input type="file" id="imageUpload" accept="image/*" />
+        <label for="imageUpload">이미지 업로드</label>
+      </div>
+      <div class="canvas-container">
+        <canvas id="canvas"></canvas>
+      </div>
+      <div class="color-info">
+        <div id="colorPreview"></div>
+        <div id="colorValue">색상을 선택하세요</div>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
