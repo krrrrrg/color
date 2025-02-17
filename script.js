@@ -23,30 +23,28 @@ imageUpload.addEventListener("change", function (e) {
       let width = img.width;
       let height = img.height;
 
-      // 이미지 크기 조정
-      if (width > height) {
-        if (width > maxWidth) {
-          height *= maxWidth / width;
-          width = maxWidth;
-        }
-      } else {
-        if (height > maxHeight) {
-          width *= maxHeight / height;
-          height = maxHeight;
-        }
+      // 이미지 크기 조정 (비율 유지)
+      const ratio = Math.min(maxWidth / width, maxHeight / height);
+      if (ratio < 1) {
+        width *= ratio;
+        height *= ratio;
       }
 
       // 캔버스 크기 설정
       tempCanvas.width = width;
       tempCanvas.height = height;
 
-      // 이미지 그리기
-      tempCtx.drawImage(img, 0, 0, width, height);
+      // 이미지를 캔버스 중앙에 배치
+      tempCtx.drawImage(img, 0, 0, img.width, img.height, 0, 0, width, height);
 
       // 실제 캔버스에 이미지 적용
       canvas.width = width;
       canvas.height = height;
       ctx.drawImage(tempCanvas, 0, 0);
+
+      // CSS에서 캔버스 크기 조정
+      canvas.style.width = "100%";
+      canvas.style.height = "auto";
 
       // 임시 캔버스 제거
       tempCanvas.remove();
@@ -244,12 +242,36 @@ function rgbToHsv(r, g, b) {
   return [h, s, v];
 }
 
+// 스포이드 위치 표시를 위한 마커 생성 함수
+function showColorMarker(x, y, color) {
+  // 이전 마커 제거
+  const oldMarker = document.querySelector(".color-marker");
+  if (oldMarker) {
+    oldMarker.remove();
+  }
+
+  // 새 마커 생성
+  const marker = document.createElement("div");
+  marker.className = "color-marker";
+  marker.style.left = `${x}px`;
+  marker.style.top = `${y}px`;
+  marker.style.backgroundColor = color;
+
+  // 캔버스 컨테이너에 마커 추가
+  document.querySelector(".canvas-container").appendChild(marker);
+
+  // 3초 후 마커 제거
+  setTimeout(() => marker.remove(), 3000);
+}
+
 // 캔버스 클릭 이벤트 처리 수정
 canvas.addEventListener("click", function (e) {
-  e.preventDefault(); // 기본 클릭 동작 방지
-  e.stopPropagation(); // 이벤트 전파 중지
+  e.preventDefault();
+  e.stopPropagation();
 
   const rect = canvas.getBoundingClientRect();
+  const clickX = e.clientX - rect.left;
+  const clickY = e.clientY - rect.top;
 
   // 캔버스의 실제 크기와 표시되는 크기의 비율 계산
   const scaleX = canvas.width / rect.width;
@@ -274,6 +296,9 @@ canvas.addEventListener("click", function (e) {
     colorPreview.style.backgroundColor = hex;
     const colorName = getColorName(r, g, b);
     colorValue.textContent = `${colorName} (${hex})`;
+
+    // 마커 표시
+    showColorMarker(clickX, clickY, hex);
   } catch (error) {
     console.error("색상 추출 중 오류 발생:", error);
   }
@@ -291,24 +316,37 @@ canvas.addEventListener(
     const rect = canvas.getBoundingClientRect();
     const touch = e.touches[0];
 
-    // 터치 좌표 계산 개선
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
+    // 화면 크기와 실제 캔버스 크기의 비율 계산
+    const displayWidth = rect.width;
+    const displayHeight = rect.height;
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
 
-    // 캔버스 크기에 맞게 좌표 조정
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
+    // 터치 좌표를 캔버스 상대 좌표로 변환
+    const touchX = touch.clientX - rect.left;
+    const touchY = touch.clientY - rect.top;
 
-    const scaledX = x * scaleX;
-    const scaledY = y * scaleY;
+    // 터치 좌표를 비율에 맞게 변환
+    const canvasX = (touchX / displayWidth) * canvasWidth;
+    const canvasY = (touchY / displayHeight) * canvasHeight;
+
+    // 좌표가 캔버스 범위 내에 있는지 확인
+    if (
+      canvasX < 0 ||
+      canvasX >= canvasWidth ||
+      canvasY < 0 ||
+      canvasY >= canvasHeight
+    ) {
+      return;
+    }
 
     try {
-      const imageData = ctx.getImageData(
-        Math.floor(scaledX),
-        Math.floor(scaledY),
-        1,
-        1
-      ).data;
+      // 정수로 반올림하여 픽셀 좌표 계산
+      const x = Math.round(canvasX);
+      const y = Math.round(canvasY);
+
+      // 색상 데이터 추출
+      const imageData = ctx.getImageData(x, y, 1, 1).data;
       const [r, g, b] = imageData;
       const hex = `#${r.toString(16).padStart(2, "0")}${g
         .toString(16)
@@ -317,8 +355,21 @@ canvas.addEventListener(
       colorPreview.style.backgroundColor = hex;
       const colorName = getColorName(r, g, b);
       colorValue.textContent = `${colorName} (${hex})`;
+
+      // 마커 표시
+      showColorMarker(touchX, touchY, hex);
+
+      // 디버깅용 로그 (나중에 제거)
+      console.log({
+        display: { width: displayWidth, height: displayHeight },
+        canvas: { width: canvasWidth, height: canvasHeight },
+        touch: { x: touchX, y: touchY },
+        calculated: { x, y },
+        color: { r, g, b, hex },
+      });
     } catch (error) {
       console.error("색상 추출 중 오류 발생:", error);
+      console.log("오류 발생 좌표:", { x: canvasX, y: canvasY });
     }
   },
   { passive: false }
