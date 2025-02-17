@@ -480,6 +480,9 @@ function getColorInfo(r, g, b) {
       "캐럿",
       "황토색",
       "테라코타",
+      // 파스텔 통합
+      "파스텔핑크",
+      "파스텔오렌지",
     ],
 
     노랑계열: [
@@ -493,6 +496,7 @@ function getColorInfo(r, g, b) {
       "카나리아",
       "황갈색",
       "골드메탈릭",
+      "파스텔옐로우",
     ],
 
     초록계열: [
@@ -515,6 +519,7 @@ function getColorInfo(r, g, b) {
       "틸",
       "비취색",
       "제이드",
+      "파스텔그린",
     ],
 
     파랑계열: [
@@ -529,6 +534,7 @@ function getColorInfo(r, g, b) {
       "베이비블루",
       "파우더블루",
       "청색",
+      "파스텔블루",
     ],
 
     보라계열: [
@@ -542,6 +548,7 @@ function getColorInfo(r, g, b) {
       "아메시스트",
       "모브",
       "라일락",
+      "파스텔퍼플",
     ],
 
     갈색계열: [
@@ -571,15 +578,6 @@ function getColorInfo(r, g, b) {
       "실버",
       "플래티넘",
     ],
-
-    파스텔계열: [
-      "파스텔핑크",
-      "파스텔블루",
-      "파스텔퍼플",
-      "파스텔옐로우",
-      "파스텔그린",
-      "파스텔오렌지",
-    ],
   };
 
   const colorName = getColorName(r, g, b);
@@ -590,21 +588,6 @@ function getColorInfo(r, g, b) {
     if (colors.includes(colorName)) {
       colorType = series;
       break;
-    }
-  }
-
-  // 파스텔 색상의 경우 기본 색상 계열도 함께 표시
-  if (colorType === "파스텔계열") {
-    if (colorName.includes("핑크") || colorName.includes("레드")) {
-      colorType = "파스텔계열 (빨강계열)";
-    } else if (colorName.includes("옐로우")) {
-      colorType = "파스텔계열 (노랑계열)";
-    } else if (colorName.includes("그린")) {
-      colorType = "파스텔계열 (초록계열)";
-    } else if (colorName.includes("블루")) {
-      colorType = "파스텔계열 (파랑계열)";
-    } else if (colorName.includes("퍼플")) {
-      colorType = "파스텔계열 (보라계열)";
     }
   }
 
