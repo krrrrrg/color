@@ -167,13 +167,55 @@ function rgbToHsv(r, g, b) {
   return [h, s, v];
 }
 
-// 캔버스 클릭 이벤트 처리
+// 캔버스 클릭 이벤트 처리 수정
 canvas.addEventListener("click", function (e) {
   const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
 
-  const imageData = ctx.getImageData(x, y, 1, 1).data;
+  // 캔버스의 실제 크기와 표시되는 크기의 비율 계산
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+
+  // 클릭 좌표를 캔버스 내부 좌표로 변환
+  const x = (e.clientX - rect.left) * scaleX;
+  const y = (e.clientY - rect.top) * scaleY;
+
+  // 범위를 벗어나는 클릭 처리
+  if (x < 0 || x >= canvas.width || y < 0 || y >= canvas.height) {
+    return;
+  }
+
+  const imageData = ctx.getImageData(Math.floor(x), Math.floor(y), 1, 1).data;
+  const [r, g, b] = imageData;
+  const hex = `#${r.toString(16).padStart(2, "0")}${g
+    .toString(16)
+    .padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+
+  colorPreview.style.backgroundColor = hex;
+  const colorName = getColorName(r, g, b);
+  colorValue.textContent = `${colorName} (${hex})`;
+});
+
+// 터치 이벤트 추가
+canvas.addEventListener("touchstart", function (e) {
+  e.preventDefault(); // 기본 터치 동작 방지
+
+  const rect = canvas.getBoundingClientRect();
+  const touch = e.touches[0];
+
+  // 캔버스의 실제 크기와 표시되는 크기의 비율 계산
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+
+  // 터치 좌표를 캔버스 내부 좌표로 변환
+  const x = (touch.clientX - rect.left) * scaleX;
+  const y = (touch.clientY - rect.top) * scaleY;
+
+  // 범위를 벗어나는 터치 처리
+  if (x < 0 || x >= canvas.width || y < 0 || y >= canvas.height) {
+    return;
+  }
+
+  const imageData = ctx.getImageData(Math.floor(x), Math.floor(y), 1, 1).data;
   const [r, g, b] = imageData;
   const hex = `#${r.toString(16).padStart(2, "0")}${g
     .toString(16)

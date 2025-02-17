@@ -12,10 +12,14 @@
 .canvas-container {
   margin: 20px 0;
   border: 1px solid #ccc;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 canvas {
   max-width: 100%;
+  height: auto;
+  display: block;
   cursor: crosshair;
 }
 
