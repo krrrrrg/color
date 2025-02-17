@@ -195,20 +195,24 @@ canvas.addEventListener("click", function (e) {
   colorValue.textContent = `${colorName} (${hex})`;
 });
 
-// 터치 이벤트 추가
+// 터치 이벤트 수정
 canvas.addEventListener("touchstart", function (e) {
   e.preventDefault(); // 기본 터치 동작 방지
 
   const rect = canvas.getBoundingClientRect();
   const touch = e.touches[0];
 
+  // 스크롤 위치 고려
+  const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+  const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+
   // 캔버스의 실제 크기와 표시되는 크기의 비율 계산
   const scaleX = canvas.width / rect.width;
   const scaleY = canvas.height / rect.height;
 
-  // 터치 좌표를 캔버스 내부 좌표로 변환
-  const x = (touch.clientX - rect.left) * scaleX;
-  const y = (touch.clientY - rect.top) * scaleY;
+  // 터치 좌표를 캔버스 내부 좌표로 변환 (스크롤 위치 반영)
+  const x = (touch.clientX + scrollX - rect.left) * scaleX;
+  const y = (touch.clientY + scrollY - rect.top) * scaleY;
 
   // 범위를 벗어나는 터치 처리
   if (x < 0 || x >= canvas.width || y < 0 || y >= canvas.height) {

@@ -14,6 +14,8 @@
   border: 1px solid #ccc;
   max-width: 100%;
   overflow: hidden;
+  -webkit-overflow-scrolling: touch;
+  touch-action: none;
 }
 
 canvas {
@@ -21,6 +23,8 @@ canvas {
   height: auto;
   display: block;
   cursor: crosshair;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .color-info {
